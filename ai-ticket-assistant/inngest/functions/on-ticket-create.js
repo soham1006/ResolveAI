@@ -8,15 +8,14 @@ import analyzeTicket from "../../utils/ai.js";
 export const onTicketCreated = inngest.createFunction(
   {
     id: "on-ticket-created",
+    triggers: [{ event: "ticket/created" }],
     retries: 2,
-    trigger: {
-      event: "ticket/created",
-    },
   },
   async ({ event, step }) => {
     try {
       const { ticketId } = event.data;
 
+      //fetch ticket from DB
       const ticket = await step.run("fetch-ticket", async () => {
         const ticketObject = await Ticket.findById(ticketId);
         if (!ticket) {
@@ -68,7 +67,7 @@ export const onTicketCreated = inngest.createFunction(
         return user;
       });
 
-      await setp.run("send-email-notification", async () => {
+      await step.run("send-email-notification", async () => {
         if (moderator) {
           const finalTicket = await Ticket.findById(ticket._id);
           await sendMail(
@@ -81,7 +80,7 @@ export const onTicketCreated = inngest.createFunction(
 
       return { success: true };
     } catch (err) {
-      console.error("Error running the step", err.message);
+      console.error("❌ Error running the step", err.message);
       return { success: false };
     }
   }

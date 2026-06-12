@@ -14,23 +14,34 @@ export default function AdminPanel() {
   }, []);
 
   const fetchUsers = async () => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/users`, {
+  try {
+    console.log("Fetching users...");
+
+    const res = await fetch(
+      `${import.meta.env.VITE_SERVER_URL}/auth/users`,
+      {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setUsers(data);
-        setFilteredUsers(data);
-      } else {
-        console.error(data.error);
       }
-    } catch (err) {
-      console.error("Error fetching users", err);
+    );
+
+    console.log("Status:", res.status);
+
+    const data = await res.json();
+
+    console.log("Response:", data);
+
+    if (res.ok) {
+      setUsers(data);
+      setFilteredUsers(data);
+    } else {
+      console.error(data);
     }
-  };
+  } catch (err) {
+    console.error("Error fetching users:", err);
+  }
+};
 
   const handleEditClick = (user) => {
     setEditingUser(user.email);

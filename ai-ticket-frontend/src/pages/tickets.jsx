@@ -15,7 +15,14 @@ export default function Tickets() {
         method: "GET",
       });
       const data = await res.json();
-      setTickets(data.tickets || []);
+
+if (!res.ok) {
+  console.error(data.message);
+  setTickets([]);
+  return;
+}
+
+setTickets(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch tickets:", err);
     }
@@ -86,21 +93,25 @@ export default function Tickets() {
 
       <h2 className="text-xl font-semibold mb-2">All Tickets</h2>
       <div className="space-y-3">
-        {tickets.map((ticket) => (
-          <Link
-            key={ticket._id}
-            className="card shadow-md p-4 bg-gray-800"
-            to={`/tickets/${ticket._id}`}
-          >
-            <h3 className="font-bold text-lg">{ticket.title}</h3>
-            <p className="text-sm">{ticket.description}</p>
-            <p className="text-sm text-gray-500">
-              Created At: {new Date(ticket.createdAt).toLocaleString()}
-            </p>
-          </Link>
-        ))}
-        {tickets.length === 0 && <p>No tickets submitted yet.</p>}
-      </div>
+  {Array.isArray(tickets) &&
+    tickets.map((ticket) => (
+      <Link
+        key={ticket._id}
+        className="card shadow-md p-4 bg-gray-800"
+        to={`/tickets/${ticket._id}`}
+      >
+        <h3 className="font-bold text-lg">{ticket.title}</h3>
+        <p className="text-sm">{ticket.description}</p>
+        <p className="text-sm text-gray-500">
+          Created At: {new Date(ticket.createdAt).toLocaleString()}
+        </p>
+      </Link>
+    ))}
+
+  {Array.isArray(tickets) && tickets.length === 0 && (
+    <p>No tickets submitted yet.</p>
+  )}
+</div>
     </div>
   );
 }

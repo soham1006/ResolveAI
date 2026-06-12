@@ -6,10 +6,8 @@ import { sendMail } from "../../utils/mailer.js";
 export const onUserSignup = inngest.createFunction(
   {
     id: "on-user-signup",
+    triggers: [{ event: "user/signup" }],
     retries: 2,
-    trigger: {
-      event: "user/signup",
-    },
   },
   async ({ event, step }) => {
     try {
@@ -28,17 +26,23 @@ export const onUserSignup = inngest.createFunction(
       });
 
       await step.run("send-welcome-email", async () => {
-        const subject = "Welcome to the app";
-        const message = `Hi,
+        const subject = "Welcome to ResolveAI";
 
-Thanks for signing up. We're glad to have you onboard!`;
+        const message = `
+Hi,
+
+Thanks for signing up. We're glad to have you onboard!
+
+Regards,
+ResolveAI Team
+`;
 
         await sendMail(user.email, subject, message);
       });
 
       return { success: true };
     } catch (error) {
-      console.error("❌ Error running step", error.message);
+      console.error("❌ Error running step:", error.message);
       return { success: false };
     }
   }
